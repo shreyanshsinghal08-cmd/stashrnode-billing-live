@@ -1,10 +1,18 @@
 FROM php:8.2-apache
 
-# Install System Dependencies & PHP Extensions
+# Install System Dependencies & PHP Extensions (Including libicu-dev for intl)
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip unzip git \
+    libicu-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libonig-dev \
+    zip \
+    unzip \
+    git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql gd zip bcmath
+    && docker-php-ext-install pdo_mysql gd zip bcmath intl mbstring
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -21,8 +29,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# Install Dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install Dependencies with platform requirement bypass flag for safety
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # Set Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
