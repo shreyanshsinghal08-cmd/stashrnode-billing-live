@@ -1,5 +1,6 @@
 @once
-    @vite('themes/' . config('settings.theme') . '/js/easymde-entry.js', config('settings.theme'))
+    <link rel="stylesheet" href="/default/assets/easymde-entry-u1uPtOLD.css">
+    <script src="/default/assets/easymde-entry-ClhZj_UZ.js" defer></script>
 @endonce
 
 @script
