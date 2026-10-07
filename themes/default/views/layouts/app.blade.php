@@ -12,7 +12,7 @@
         @endisset
     </title>
     @livewireStyles
-    <link rel="stylesheet" href="/css/minecraft-live.css">
+    <link rel="stylesheet" href="{{ asset('css/stashrnode-glass.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     @include('layouts.colors')
 
