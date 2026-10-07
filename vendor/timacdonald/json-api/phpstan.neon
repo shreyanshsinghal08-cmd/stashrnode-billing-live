@@ -1,0 +1,15 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    checkImplicitMixed: true
+    checkBenevolentUnionTypes: true
+    exceptions:
+        check:
+            tooWideThrowType: true
+            missingCheckedExceptionInThrows: true
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/phpstan/phpstan-strict-rules/rules.neon

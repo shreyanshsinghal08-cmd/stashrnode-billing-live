@@ -1,0 +1,54 @@
+{
+    "name": "timacdonald/json-api",
+    "description": "A Lightweight JSON:API Resource for Laravel",
+    "keywords": [
+        "laravel",
+        "json",
+        "api",
+        "resource",
+        "JSON-API"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tim MacDonald",
+            "email": "hello@timacdonald.me",
+            "homepage": "https://timacdonald.me"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/collections": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/database": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+        "symfony/http-kernel": "^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "laravel/framework": "^11.0 || ^12.0 || ^13.0",
+        "opis/json-schema": "^2.3",
+        "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
+        "phpunit/phpunit": "^9.0 || ^10.5 || ^11.5"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "TiMacDonald\\JsonApi\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "support": {
+        "issues": "https://github.com/timacdonald/json-api/issues",
+        "source": "https://github.com/timacdonald/json-api/releases/latest",
+        "docs": "https://github.com/timacdonald/json-api/blob/master/readme.md"
+    }
+}
