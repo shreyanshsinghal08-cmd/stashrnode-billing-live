@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+export DB_CONNECTION=sqlite
+
 # Ensure SQLite database file exists
 mkdir -p /var/www/html/database
 touch /var/www/html/database/database.sqlite
