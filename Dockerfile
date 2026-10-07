@@ -1,44 +1,48 @@
 FROM php:8.2-apache
 
-# Install System Dependencies & PHP Extensions (Including libicu-dev for intl)
+# Install System Dependencies, PHP Extensions & Node.js
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
-    libonig-dev \
+    libsqlite3-dev \
     zip \
     unzip \
     git \
+    curl \
+    && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql gd zip bcmath intl mbstring
+    && docker-php-ext-install pdo_mysql pdo_sqlite gd zip bcmath intl mbstring
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Set Apache Document Root to /public
+# Set Document Root to /public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf
 
-# Copy Composer from Official Image
+# Copy Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy Project Files
 WORKDIR /var/www/html
 COPY . .
 
-# Install Dependencies with platform requirement bypass flag for safety
+# Install PHP Dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
-# Set Permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod +x /var/www/html/entrypoint.sh
+# Install NPM Dependencies and Build Assets
+RUN npm install && npm run build
 
-EXPOSE 80
+# Setup Entrypoint Script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/var/www/html/entrypoint.sh"]
+# Fix Final Permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["apache2-foreground"]
-
