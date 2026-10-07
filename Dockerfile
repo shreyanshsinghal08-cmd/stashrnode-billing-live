@@ -34,6 +34,11 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 
 # Set Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod +x /var/www/html/entrypoint.sh
 
 EXPOSE 80
+
+ENTRYPOINT ["/var/www/html/entrypoint.sh"]
+CMD ["apache2-foreground"]
+
