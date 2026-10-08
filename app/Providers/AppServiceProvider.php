@@ -135,7 +135,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Permanently bypass Vite manifest lookups to prevent ViteManifestNotFoundException on Render
+        // FORCE BLADE COMPILER TO OVERRIDE @vite DIRECTIVE WITH STATIC HTML
+        \Illuminate\Support\Facades\Blade::directive('vite', function () {
+            return "<?php echo '<link rel=\"stylesheet\" href=\"/css/stashrnode-glass.css\"><script src=\"https://cdn.tailwindcss.com\"></script>'; ?>";
+        });
+
+        \Illuminate\Support\Facades\View::share('vite_bypass', true);
+
+        // Permanently bypass Vite manifest lookups for any non-Blade vite() calls
         $this->app->singleton(\Illuminate\Foundation\Vite::class, function () {
             return new class extends \Illuminate\Foundation\Vite {
                 public function __invoke($entrypoints, $buildDirectory = null)
@@ -147,8 +154,6 @@ class AppServiceProvider extends ServiceProvider
                 }
             };
         });
-
-        \Illuminate\Support\Facades\View::share('vite_bypass', true);
 
         // Change livewire url
         Livewire::setUpdateRoute(function ($handle) {
