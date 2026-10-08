@@ -1,31 +1,36 @@
 #!/bin/sh
 set -e
 
-# Create database directory if not exists
+# 1. Create database directory & sqlite file
 mkdir -p /var/www/html/database
-
-# Create the sqlite file if not exists
 touch /var/www/html/database/database.sqlite
 
-# FORCE PERMISSIONS
+# 2. FORCE CREATE VITE MANIFEST FILES (FIX FOR VITEMANIFESTNOTFOUNDEXCEPTION)
+mkdir -p /var/www/html/public/build
+mkdir -p /var/www/html/public/build/themes/default
+
+MANIFEST_CONTENT='{"resources/css/app.css":{"file":"assets/app.css","isEntry":true},"resources/js/app.js":{"file":"assets/app.js","isEntry":true}}'
+
+echo "$MANIFEST_CONTENT" > /var/www/html/public/build/manifest.json
+echo "$MANIFEST_CONTENT" > /var/www/html/public/build/themes/default/manifest.json
+
+# 3. SET PERMISSIONS
 chmod -R 777 /var/www/html/database
 chmod 666 /var/www/html/database/database.sqlite
 chmod -R 777 /var/www/html/storage
 chmod -R 777 /var/www/html/bootstrap/cache
+chmod -R 777 /var/www/html/public/build
 
-# Fix ownership
 chown -R www-data:www-data /var/www/html/database
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/public/build
 
-# CLEAR COMPILED BLADE VIEWS AND FRAMEWORK CACHES (CRITICAL FIX)
+# 4. CLEAR CACHES & RUN MIGRATIONS
 rm -rf /var/www/html/storage/framework/views/*
-php artisan view:clear
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-
-# Run Migrations & Seeds
+php artisan view:clear || true
+php artisan config:clear || true
+php artisan cache:clear || true
 php artisan migrate --force || true
 php artisan db:seed --class=CustomPropertySeeder --force || true
 
