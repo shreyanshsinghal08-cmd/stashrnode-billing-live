@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -18,33 +18,98 @@ import {
 
 export default function GlassDock() {
   const pathname = usePathname();
+  const [currentHash, setCurrentHash] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Track window.location.hash via hashchange & popstate events
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHash(window.location.hash);
+    }
+
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handleHashChange);
+    };
+  }, []);
+
+  // Sync hash state when pathname changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHash(window.location.hash);
+    }
+  }, [pathname]);
+
+  // Click handlers for Dashboard and Game Nodes
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    setCurrentHash("");
+    if (pathname === "/dashboard" || pathname === "/") {
+      e.preventDefault();
+      if (typeof window !== "undefined" && window.history.pushState) {
+        window.history.pushState(null, "", "/dashboard");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleNodesClick = (e: React.MouseEvent) => {
+    setCurrentHash("#nodes");
+    if (pathname === "/dashboard" || pathname === "/") {
+      e.preventDefault();
+      if (typeof window !== "undefined" && window.history.pushState) {
+        window.history.pushState(null, "", "#nodes");
+      }
+      const nodesElem = document.getElementById("nodes");
+      if (nodesElem) {
+        nodesElem.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  // Active state logic
+  const isDashboardActive =
+    (pathname === "/dashboard" || pathname === "/") && currentHash !== "#nodes";
+  const isNodesActive =
+    (pathname === "/dashboard" || pathname === "/") && currentHash === "#nodes";
+  const isInvoicesActive = pathname.startsWith("/invoices");
+  const isAdminActive = pathname.startsWith("/admin");
 
   const navItems = [
     {
       label: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      active: pathname === "/dashboard" || pathname === "/",
+      active: isDashboardActive,
+      onClick: handleDashboardClick,
     },
     {
       label: "Game Nodes",
       href: "/dashboard#nodes",
       icon: Server,
-      active: false,
+      active: isNodesActive,
+      onClick: handleNodesClick,
     },
     {
       label: "Invoices",
       href: "/invoices",
       icon: Receipt,
-      active: pathname === "/invoices",
+      active: isInvoicesActive,
       badge: "1",
+      onClick: () => setCurrentHash(""),
     },
     {
       label: "Admin Panel",
       href: "/admin",
       icon: Shield,
-      active: pathname === "/admin",
+      active: isAdminActive,
+      onClick: () => setCurrentHash(""),
     },
   ];
 
@@ -81,6 +146,7 @@ export default function GlassDock() {
 
                 <Link
                   href={item.href}
+                  onClick={item.onClick}
                   className={`relative flex items-center justify-center size-11 sm:size-12 rounded-full transition-all duration-200 ease-out transform group-hover:scale-120 group-hover:-translate-y-1 active:scale-95 ${
                     isActive
                       ? "bg-gradient-to-b from-cyan-400/25 to-blue-600/30 text-cyan-300 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,184,255,0.4)]"
@@ -115,7 +181,7 @@ export default function GlassDock() {
 
             <button
               onClick={() => setShowProfileModal(true)}
-              className="relative flex items-center justify-center size-11 sm:size-12 rounded-full bg-white/5 hover:bg-white/15 text-slate-200 hover:text-white border border-white/10 transition-all duration-200 ease-out transform group-hover:scale-120 group-hover:-translate-y-1 active:scale-95"
+              className="relative flex items-center justify-center size-11 sm:size-12 rounded-full bg-white/5 hover:bg-white/15 text-slate-200 hover:text-white border border-white/10 transition-all duration-200 ease-out transform group-hover:scale-120 group-hover:-translate-y-1 active:scale-95 cursor-pointer"
               aria-label="Open User Profile"
             >
               <div className="size-8 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-inner">
@@ -145,7 +211,7 @@ export default function GlassDock() {
             {/* Close Button */}
             <button
               onClick={() => setShowProfileModal(false)}
-              className="absolute top-4 right-4 size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className="absolute top-4 right-4 size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               <X className="size-4" />
             </button>
@@ -176,7 +242,7 @@ export default function GlassDock() {
             <div className="mt-5 grid grid-cols-2 gap-3 p-3 rounded-2xl bg-black/40 border border-white/10 text-center">
               <div>
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">Active Fleet</p>
-                <p className="text-sm font-bold text-white">2 Nodes Online</p>
+                <p className="text-sm font-bold text-white">4 Nodes Online</p>
               </div>
               <div className="border-l border-white/10">
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">DDoS Shield</p>
@@ -203,7 +269,7 @@ export default function GlassDock() {
                   alert("Client Demo Mode: Session lock simulated.");
                   setShowProfileModal(false);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-semibold text-red-300 flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-semibold text-red-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <LogOut className="size-4" />
                 Lock Demo Session
