@@ -14,6 +14,7 @@ import {
   Activity,
   LogOut,
   ExternalLink,
+  ShieldAlert,
 } from "lucide-react";
 
 export default function GlassSidebar() {
@@ -25,6 +26,12 @@ export default function GlassSidebar() {
       name: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      name: "Admin Panel",
+      href: "/admin",
+      icon: ShieldAlert,
+      badge: "Staff",
     },
     {
       name: "Invoices & Billing",
@@ -39,12 +46,12 @@ export default function GlassSidebar() {
     },
     {
       name: "Support Desk",
-      href: "/invoices",
+      href: "/admin",
       icon: LifeBuoy,
     },
     {
       name: "Settings",
-      href: "/dashboard",
+      href: "/admin",
       icon: Settings,
     },
   ];
