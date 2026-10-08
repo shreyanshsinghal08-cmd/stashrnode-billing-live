@@ -41,7 +41,20 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__ . '/../app/Listeners',
     ])
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->report(function (Exception $exception) {
+        $exceptions->report(function (\Throwable $exception) {
+            try {
+                $logPath = storage_path('logs/latest_error.txt');
+                $logDir = dirname($logPath);
+                if (!is_dir($logDir)) {
+                    @mkdir($logDir, 0777, true);
+                }
+                $timestamp = date('Y-m-d H:i:s');
+                $logMessage = "[{$timestamp}] Exception: {$exception->getMessage()} in {$exception->getFile()} on line {$exception->getLine()}";
+                @file_put_contents($logPath, $logMessage . PHP_EOL);
+            } catch (\Throwable $e) {
+                // Silently avoid breaking error reporting
+            }
+
             try {
                 if (!config('settings.debug', false)) {
                     return;

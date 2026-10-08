@@ -83,3 +83,12 @@ Route::group([
         'middleware' => 'web',
     ]);
 });
+
+Route::get('/api/debug-error', function () {
+    $path = storage_path('logs/latest_error.txt');
+    if (file_exists($path)) {
+        return response(file_get_contents($path), 200)->header('Content-Type', 'text/plain');
+    }
+    return response('No errors logged yet. System running smoothly!', 200)->header('Content-Type', 'text/plain');
+});
+
